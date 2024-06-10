@@ -16,11 +16,12 @@
     </style>
 </head>
 <body>
+<h3><a href="index.html">Home</a></h3>
+<hr>
 <h2>Meals</h2>
 <table>
     <tr>
         <th>Дата</th>
-        <th>Время</th>
         <th>Описание</th>
         <th>Калории</th>
     </tr>
@@ -29,10 +30,7 @@
         <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.MealTo"/>
         <tr class="${meal.excess ? 'excess-true' : 'excess-false'}">
             <td>
-                <p>${meal.dateTime.toLocalDate()}</p>
-            </td>
-            <td>
-                <p>${meal.dateTime.toLocalTime()}</p>
+                <p>${meal.dateTime.toLocalDate()} ${meal.dateTime.toLocalTime()}</p>
             </td>
             <td>
                 <p>${meal.description}</p>
