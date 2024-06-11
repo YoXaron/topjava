@@ -19,11 +19,17 @@
 <h3><a href="index.html">Home</a></h3>
 <hr>
 <h2>Meals</h2>
+<a href="meals?null&action=add">
+    <button>Добавить</button>
+</a>
+<br>
+<br>
 <table>
     <tr>
         <th>Дата</th>
         <th>Описание</th>
         <th>Калории</th>
+        <th colspan=2>Действие</th>
     </tr>
     <jsp:useBean id="meals" scope="request" type="java.util.List"/>
     <c:forEach items="${meals}" var="meal">
@@ -38,6 +44,8 @@
             <td>
                 <p>${meal.calories}</p>
             </td>
+            <td><a href="meals?uuid=${meal.uuid}&action=edit">Изменить</a></td>
+            <td><a href="meals?uuid=${meal.uuid}&action=delete">Удалить</a></td>
         </tr>
     </c:forEach>
 </table>
