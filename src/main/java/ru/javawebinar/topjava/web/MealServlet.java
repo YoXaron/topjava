@@ -19,8 +19,8 @@ import java.time.temporal.ChronoUnit;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
-
     private static final Logger log = getLogger(MealServlet.class);
+
     private MealDao dao;
 
     public void init(ServletConfig config) throws ServletException {
@@ -31,7 +31,8 @@ public class MealServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Integer id = req.getParameter("id") != null && !req.getParameter("id").isEmpty() ? Integer.parseInt(req.getParameter("id")) : null;
+        String idParam = req.getParameter("id");
+        Integer id = idParam == null || idParam.isEmpty() ? null : Integer.parseInt(idParam);
         String action = req.getParameter("action");
 
         log.info("Received GET request with action: {} and id: {}", action, id);
@@ -45,9 +46,7 @@ public class MealServlet extends HttpServlet {
         switch (action) {
             case "add":
                 log.info("Action: add, preparing empty meal for addition");
-                meal = new Meal(LocalDateTime.now(), "", 0);
-                req.setAttribute("datetime", meal.getDateTime().truncatedTo(ChronoUnit.MINUTES));
-                req.setAttribute("action", "Add");
+                meal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 0);
                 break;
             case "delete":
                 log.info("Action: delete, deleting meal with id: {}", id);
@@ -57,40 +56,14 @@ public class MealServlet extends HttpServlet {
             case "edit":
                 log.info("Action: edit, editing meal with id: {}", id);
                 meal = dao.getById(id);
-                req.setAttribute("datetime", meal.getDateTime().truncatedTo(ChronoUnit.MINUTES));
-                req.setAttribute("action", "Edit");
                 break;
             default:
                 log.error("Unknown action: {}", action);
                 displayAllMeals(req, resp);
                 return;
         }
-
         req.setAttribute("meal", meal);
         req.getRequestDispatcher("mealEdit.jsp").forward(req, resp);
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        req.setCharacterEncoding("UTF-8");
-        Integer id = req.getParameter("id") != null && !req.getParameter("id").isEmpty() ? Integer.parseInt(req.getParameter("id")) : null;
-
-        log.info("Received POST request with id: {}", id);
-
-        LocalDateTime dateTime = LocalDateTime.parse(req.getParameter("datetime"));
-        String description = req.getParameter("description");
-        int calories = Integer.parseInt(req.getParameter("calories"));
-
-        Meal meal;
-        if (id == null) {
-            meal = dao.create(new Meal(dateTime, description, calories));
-            log.info("Meal created with id: {}", meal.getId());
-        } else {
-            meal = dao.update(new Meal(id, dateTime, description, calories));
-            log.info("Meal updated with id: {}", meal.getId());
-        }
-        log.info("Sending redirect to meals");
-        resp.sendRedirect("meals");
     }
 
     private void displayAllMeals(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -105,5 +78,32 @@ public class MealServlet extends HttpServlet {
                 )
         );
         req.getRequestDispatcher("meals.jsp").forward(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        String idParam = req.getParameter("id");
+        Integer id = idParam == null || idParam.isEmpty() ? null : Integer.parseInt(idParam);
+
+        log.info("Received POST request with id: {}", id);
+
+        LocalDateTime dateTime = LocalDateTime.parse(req.getParameter("datetime"));
+        String description = req.getParameter("description");
+        int calories = Integer.parseInt(req.getParameter("calories"));
+
+        if (id == null) {
+            Meal meal = dao.create(new Meal(dateTime, description, calories));
+            log.info("Meal created with id: {}", meal.getId());
+        } else {
+            Meal meal = dao.update(new Meal(id, dateTime, description, calories));
+            if (meal == null) {
+                log.error("Meal with id: {} not found", id);
+            } else {
+                log.info("Meal updated with id: {}", meal.getId());
+            }
+        }
+        log.info("Sending redirect to meals");
+        resp.sendRedirect("meals");
     }
 }
