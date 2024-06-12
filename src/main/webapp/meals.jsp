@@ -19,7 +19,7 @@
 <h3><a href="index.html">Home</a></h3>
 <hr>
 <h2>Meals</h2>
-<a href="meals?null&action=add">
+<a href="meals?action=add">
     <button>Добавить</button>
 </a>
 <br>
@@ -44,8 +44,8 @@
             <td>
                 <p>${meal.calories}</p>
             </td>
-            <td><a href="meals?uuid=${meal.uuid}&action=edit">Изменить</a></td>
-            <td><a href="meals?uuid=${meal.uuid}&action=delete">Удалить</a></td>
+            <td><a href="meals?id=${meal.id}&action=edit">Изменить</a></td>
+            <td><a href="meals?id=${meal.id}&action=delete">Удалить</a></td>
         </tr>
     </c:forEach>
 </table>

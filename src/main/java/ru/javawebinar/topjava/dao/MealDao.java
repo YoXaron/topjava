@@ -8,11 +8,11 @@ public interface MealDao {
 
     List<Meal> getAll();
 
-    Meal getById(String uuid);
+    Meal getById(Integer id);
 
-    void save(Meal meal);
+    Meal create(Meal meal);
 
-    void update(Meal meal);
+    Meal update(Meal meal);
 
-    void delete(String uuid);
+    void delete(Integer id);
 }
