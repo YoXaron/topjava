@@ -31,8 +31,7 @@ public class MealServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String idParam = req.getParameter("id");
-        Integer id = idParam == null || idParam.isEmpty() ? null : Integer.parseInt(idParam);
+        Integer id = getIdFromRequest(req);
         String action = req.getParameter("action");
 
         log.info("Received GET request with action: {} and id: {}", action, id);
@@ -83,8 +82,7 @@ public class MealServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
-        String idParam = req.getParameter("id");
-        Integer id = idParam == null || idParam.isEmpty() ? null : Integer.parseInt(idParam);
+        Integer id = getIdFromRequest(req);
 
         log.info("Received POST request with id: {}", id);
 
@@ -105,5 +103,10 @@ public class MealServlet extends HttpServlet {
         }
         log.info("Sending redirect to meals");
         resp.sendRedirect("meals");
+    }
+
+    private Integer getIdFromRequest(HttpServletRequest req) {
+        String idParam = req.getParameter("id");
+        return idParam == null || idParam.isEmpty() ? null : Integer.parseInt(idParam);
     }
 }
