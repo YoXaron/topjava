@@ -8,6 +8,8 @@ import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 import ru.javawebinar.topjava.web.user.AdminRestController;
 
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,6 +24,15 @@ public class SpringMain {
             MealRestController mealRestController = appCtx.getBean(MealRestController.class);
             List<MealTo> mealsTo = mealRestController.getAll();
             mealsTo.forEach(System.out::println);
+            System.out.println();
+
+            List<MealTo> filteredMeals = mealRestController.getFilteredByPeriod(
+                    LocalDate.of(2020, Month.JANUARY, 30),
+                    LocalDate.of(2020, Month.JANUARY, 30),
+                    null,
+                    null
+            );
+            filteredMeals.forEach(System.out::println);
         }
     }
 }

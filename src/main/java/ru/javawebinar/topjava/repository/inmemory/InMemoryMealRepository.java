@@ -3,9 +3,16 @@ package ru.javawebinar.topjava.repository.inmemory;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -17,6 +24,10 @@ public class InMemoryMealRepository implements MealRepository {
 
     {
         MealsUtil.meals.forEach(meal -> save(1, meal));
+        save(2, new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "USER_2 Завтрак", 500));
+        save(2, new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 12, 0), "USER_2 Обед", 900));
+        save(2, new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 30), "USER_2 Ужин", 750));
+        save(2, new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 21, 0), "USER_2 Ресторан", 1500));
     }
 
     @Override
@@ -49,7 +60,14 @@ public class InMemoryMealRepository implements MealRepository {
             return Collections.emptyList();
         }
         return userMeals.values().stream()
-                .sorted(Comparator.comparing(Meal::getDate).reversed())
+                .sorted(Comparator.comparing(Meal::getDateTime).reversed())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Meal> getFilteredByDate(int userId, LocalDate startDate, LocalDate endDate) {
+        return getAll(userId).stream()
+                .filter(meal -> DateTimeUtil.isBetweenHalfOpen(meal.getDate(), startDate, endDate))
                 .collect(Collectors.toList());
     }
 }

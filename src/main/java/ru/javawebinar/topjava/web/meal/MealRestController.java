@@ -30,9 +30,9 @@ public class MealRestController {
         return MealsUtil.getTos(service.getAll(SecurityUtil.authUserId()), SecurityUtil.authUserCaloriesPerDay());
     }
 
-    public Meal get(int mealId) {
-        log.info("get {}", mealId);
-        return service.get(SecurityUtil.authUserId(), mealId);
+    public Meal get(int id) {
+        log.info("get {}", id);
+        return service.get(SecurityUtil.authUserId(), id);
     }
 
     public Meal create(Meal meal) {
@@ -41,20 +41,20 @@ public class MealRestController {
         return service.create(SecurityUtil.authUserId(), meal);
     }
 
-    public void delete(int mealId) {
-        log.info("delete {}", mealId);
-        service.delete(SecurityUtil.authUserId(), mealId);
+    public void delete(int id) {
+        log.info("delete {}", id);
+        service.delete(SecurityUtil.authUserId(), id);
     }
 
-    public void update(int userId, Meal meal) {
-        log.info("update {} with id={}", meal, userId);
-        assureIdConsistent(meal, userId);
-        service.update(userId, meal);
+    public void update(int id, Meal meal) {
+        log.info("update {} with id={}", meal, id);
+        assureIdConsistent(meal, id);
+        service.update(SecurityUtil.authUserId(), meal);
     }
 
     public List<MealTo> getFilteredByPeriod(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
         startDate = startDate == null ? LocalDate.MIN : startDate;
-        endDate = endDate == null ? LocalDate.MAX : startDate;
+        endDate = endDate == null ? LocalDate.MAX : endDate.plusDays(1);
         startTime = startTime == null ? LocalTime.MIN : startTime;
         endTime = endTime == null ? LocalTime.MAX : endTime;
         log.info("getFilteredByPeriod: Date {} - {}, Time {} - {}", startDate, endDate, startTime, endTime);
