@@ -26,6 +26,15 @@ public class SpringMain {
             mealsTo.forEach(System.out::println);
             System.out.println();
 
+            List<MealTo> nonFilteredMeals = mealRestController.getFilteredByPeriod(
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            nonFilteredMeals.forEach(System.out::println);
+            System.out.println();
+
             List<MealTo> filteredMeals = mealRestController.getFilteredByPeriod(
                     LocalDate.of(2020, Month.JANUARY, 30),
                     LocalDate.of(2020, Month.JANUARY, 30),
