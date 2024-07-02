@@ -1,7 +1,13 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.AfterClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
@@ -13,6 +19,8 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -27,8 +35,34 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
 
+    private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
+    private static final Map<String, Long> testTimes = new HashMap<>();
+    private long startTime;
+
     @Autowired
     private MealService service;
+
+    @Rule
+    public TestWatcher testWatcher = new TestWatcher() {
+
+        @Override
+        protected void starting(Description description) {
+            super.starting(description);
+            startTime = System.currentTimeMillis();
+        }
+
+        @Override
+        protected void finished(Description description) {
+            super.finished(description);
+            long duration = System.currentTimeMillis() - startTime;
+            testTimes.put(description.getMethodName(), duration);
+        }
+    };
+
+    @AfterClass
+    public static void logTestTimes() {
+        testTimes.forEach((testName, duration) -> log.info("{}: {} ms", testName, duration));
+    }
 
     @Test
     public void delete() {
