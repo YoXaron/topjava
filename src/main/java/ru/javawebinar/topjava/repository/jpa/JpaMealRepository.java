@@ -1,15 +1,13 @@
 package ru.javawebinar.topjava.repository.jpa;
 
-import org.hibernate.Hibernate;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,14 +23,11 @@ public class JpaMealRepository implements MealRepository {
     @Transactional
     public Meal save(Meal meal, int userId) {
         meal.setUser(em.getReference(User.class, userId));
-        Hibernate.initialize(meal.getUser());
         if (meal.isNew()) {
             em.persist(meal);
             return meal;
-        } else if (get(meal.id(), userId) == null) {
-            return null;
         }
-        return em.merge(meal);
+        return get(meal.id(), userId) == null ? null : em.merge(meal);
     }
 
     @Override
@@ -46,14 +41,12 @@ public class JpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        try {
-            return em.createNamedQuery(Meal.GET, Meal.class)
-                    .setParameter("id", id)
-                    .setParameter("userId", userId)
-                    .getSingleResult();
-        } catch (NoResultException e) {
-            throw new NotFoundException("Meal not found with id=" + id + " and userId=" + userId);
-        }
+        return DataAccessUtils.singleResult(
+                em.createNamedQuery(Meal.GET, Meal.class)
+                        .setParameter("id", id)
+                        .setParameter("userId", userId)
+                        .getResultList()
+        );
     }
 
     @Override
