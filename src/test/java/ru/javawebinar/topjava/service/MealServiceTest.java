@@ -3,7 +3,7 @@ package ru.javawebinar.topjava.service;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
+import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -19,8 +19,7 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -36,32 +35,25 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 public class MealServiceTest {
 
     private static final Logger log = LoggerFactory.getLogger(MealServiceTest.class);
-    private static final Map<String, Long> testTimes = new HashMap<>();
-    private long startTime;
+    private static final StringBuilder testTimes = new StringBuilder();
 
     @Autowired
     private MealService service;
 
     @Rule
-    public TestWatcher testWatcher = new TestWatcher() {
-
+    public Stopwatch stopwatch = new Stopwatch() {
         @Override
-        protected void starting(Description description) {
-            super.starting(description);
-            startTime = System.currentTimeMillis();
-        }
-
-        @Override
-        protected void finished(Description description) {
-            super.finished(description);
-            long duration = System.currentTimeMillis() - startTime;
-            testTimes.put(description.getMethodName(), duration);
+        protected void finished(long nanos, Description description) {
+            String methodName = description.getMethodName();
+            long millis = TimeUnit.NANOSECONDS.toMillis(nanos);
+            testTimes.append(String.format("%-25s %10d ms\n", methodName, millis));
+            log.info("{}: {} ms", methodName, millis);
         }
     };
 
     @AfterClass
     public static void logTestTimes() {
-        testTimes.forEach((testName, duration) -> log.info("{}: {} ms", testName, duration));
+        System.out.println(testTimes);
     }
 
     @Test
