@@ -2,13 +2,14 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <html>
+<base href="${pageContext.request.contextPath}/">
 <head>
     <title>Meal</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <section>
-    <h3><a href="index.html">Home</a></h3>
+    <h3><a href="${pageContext.request.contextPath}">Home</a></h3>
     <hr>
     <h2>${param.action == 'create' ? 'Create meal' : 'Edit meal'}</h2>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
