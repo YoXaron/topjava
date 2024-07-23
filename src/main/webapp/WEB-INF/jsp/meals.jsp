@@ -2,46 +2,47 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://topjava.javawebinar.ru/functions" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <html>
-<base href="${pageContext.request.contextPath}/">
+<jsp:include page="fragments/headTag.jsp"/>
 <head>
-    <title>Meals</title>
+    <title><spring:message code="meal.title"/></title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <section>
     <h3><a href="${pageContext.request.contextPath}">Home</a></h3>
     <hr/>
-    <h2>Meals</h2>
+    <h2><spring:message code="meal.title"/></h2>
     <form method="get" action="meals/filter">
 <%--        <input type="hidden" name="action" value="filter">--%>
         <dl>
-            <dt>From Date (inclusive):</dt>
+            <dt><spring:message code="date.from"/></dt>
             <dd><input type="date" name="startDate" value="${param.startDate}"></dd>
         </dl>
         <dl>
-            <dt>To Date (inclusive):</dt>
+            <dt><spring:message code="date.to"/></dt>
             <dd><input type="date" name="endDate" value="${param.endDate}"></dd>
         </dl>
         <dl>
-            <dt>From Time (inclusive):</dt>
+            <dt><spring:message code="time.from"/></dt>
             <dd><input type="time" name="startTime" value="${param.startTime}"></dd>
         </dl>
         <dl>
-            <dt>To Time (exclusive):</dt>
+            <dt><spring:message code="time.to"/></dt>
             <dd><input type="time" name="endTime" value="${param.endTime}"></dd>
         </dl>
-        <button type="submit">Filter</button>
+        <button type="submit"><spring:message code="submit.filter"/></button>
     </form>
     <hr/>
-    <a href="meals/new">Add Meal</a>
+    <a href="meals/new"><spring:message code="meal.add"/></a>
     <br><br>
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
         <tr>
-            <th>Date</th>
-            <th>Description</th>
-            <th>Calories</th>
+            <th><spring:message code="app.date"/></th>
+            <th><spring:message code="app.description"/></th>
+            <th><spring:message code="app.calories"/></th>
             <th></th>
             <th></th>
         </tr>
@@ -57,11 +58,12 @@
                 </td>
                 <td>${meal.description}</td>
                 <td>${meal.calories}</td>
-                <td><a href="meals/update/${meal.id}">Update</a></td>
-                <td><a href="meals/delete/${meal.id}">Delete</a></td>
+                <td><a href="meals/update/${meal.id}"><spring:message code="app.update"/></a></td>
+                <td><a href="meals/delete/${meal.id}"><spring:message code="app.delete"/></a></td>
             </tr>
         </c:forEach>
     </table>
 </section>
+<jsp:include page="fragments/footer.jsp"/>
 </body>
 </html>
