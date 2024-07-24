@@ -12,9 +12,7 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
@@ -44,7 +42,6 @@ public class JspMealController extends BaseMealController {
     @GetMapping("/new")
     public String newMeal(Model model) {
         model.addAttribute("meal", new Meal(null, LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 100));
-        model.addAttribute("method", "POST");
         return "mealForm";
     }
 
@@ -56,12 +53,20 @@ public class JspMealController extends BaseMealController {
 
     @PostMapping
     public String save(HttpServletRequest request) {
-        if (StringUtils.hasLength(request.getParameter("id"))) {
-            super.update(getMealFromRequest(request), Integer.parseInt(request.getParameter("id")));
+        var id = request.getParameter("id");
+        var mealFromRequest = getMealFromRequest(request);
+        if (StringUtils.hasLength(id)) {
+            super.update(mealFromRequest, Integer.parseInt(id));
         } else {
-            super.create(getMealFromRequest(request));
+            super.create(mealFromRequest);
         }
         return "redirect:/meals";
+    }
+
+    private Meal getMealFromRequest(HttpServletRequest request) {
+        return new Meal(LocalDateTime.parse(request.getParameter("dateTime")),
+                request.getParameter("description"),
+                Integer.parseInt(request.getParameter("calories")));
     }
 
     @GetMapping("/delete/{id}")
@@ -72,17 +77,11 @@ public class JspMealController extends BaseMealController {
 
     @GetMapping("/filter")
     public String filter(HttpServletRequest request) {
-        LocalDate startDate = parseLocalDate(request.getParameter("startDate"));
-        LocalDate endDate = parseLocalDate(request.getParameter("endDate"));
-        LocalTime startTime = parseLocalTime(request.getParameter("startTime"));
-        LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
+        var startDate = parseLocalDate(request.getParameter("startDate"));
+        var endDate = parseLocalDate(request.getParameter("endDate"));
+        var startTime = parseLocalTime(request.getParameter("startTime"));
+        var endTime = parseLocalTime(request.getParameter("endTime"));
         request.setAttribute("meals", super.getBetween(startDate, startTime, endDate, endTime));
         return "/meals";
-    }
-
-    private Meal getMealFromRequest(HttpServletRequest request) {
-        return new Meal(LocalDateTime.parse(request.getParameter("dateTime")),
-                request.getParameter("description"),
-                Integer.parseInt(request.getParameter("calories")));
     }
 }

@@ -2,7 +2,9 @@ package ru.javawebinar.topjava.service;
 
 import org.junit.Assume;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.dao.DataAccessException;
@@ -19,6 +21,7 @@ import java.util.Set;
 import static org.junit.Assert.assertThrows;
 import static ru.javawebinar.topjava.UserTestData.*;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public abstract class AbstractUserServiceTest extends AbstractServiceTest {
 
     @Autowired
@@ -77,14 +80,20 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    public void update() {
+    public void a1update() {
+//        User updated = getUpdated();
+//        service.update(updated);
+//        USER_MATCHER.assertMatch(service.get(USER_ID), getUpdated());
+
         User updated = getUpdated();
         service.update(updated);
-        USER_MATCHER.assertMatch(service.get(USER_ID), getUpdated());
+        List<User> allUsersAfterUpdate = service.getAll();
+        List<User> expectedUsers = List.of(admin, guest, updated);
+        USER_MATCHER.assertMatch(allUsersAfterUpdate, expectedUsers);
     }
 
     @Test
-    public void getAll() {
+    public void a2getAll() {
         List<User> all = service.getAll();
         USER_MATCHER.assertMatch(all, admin, guest, user);
     }
