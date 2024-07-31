@@ -1,9 +1,14 @@
 package ru.javawebinar.topjava.web.meal;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import ru.javawebinar.topjava.util.MealsUtil;
+import ru.javawebinar.topjava.MealTestData;
+import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.service.MealService;
+import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.SecurityUtil;
 import ru.javawebinar.topjava.web.json.JsonUtil;
@@ -19,6 +24,10 @@ import static ru.javawebinar.topjava.util.MealsUtil.getTos;
 import static ru.javawebinar.topjava.web.meal.MealRestController.REST_URL;
 
 public class MealRestControllerTest extends AbstractControllerTest {
+
+    @Autowired
+    MealService mealService;
+
     @Test
     void getAll() throws Exception {
         perform(MockMvcRequestBuilders.get(REST_URL))
@@ -39,18 +48,28 @@ public class MealRestControllerTest extends AbstractControllerTest {
 
     @Test
     void createRest() throws Exception {
-        perform(MockMvcRequestBuilders.post(REST_URL)
+        Meal newMeal = getNew();
+        ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(getNew())))
                 .andExpect(status().isCreated());
+
+        Meal created = MEAL_MATCHER.readFromJson(action);
+        int newId = created.id();
+        newMeal.setId(newId);
+        MEAL_MATCHER.assertMatch(created, newMeal);
+        MEAL_MATCHER.assertMatch(mealService.get(newId, SecurityUtil.authUserId()), newMeal);
     }
 
     @Test
     void update() throws Exception {
-        perform(MockMvcRequestBuilders.post(REST_URL + "/" + MEAL1_ID)
+        Meal updatedMeal = getUpdated();
+        perform(MockMvcRequestBuilders.put(REST_URL + "/" + MEAL1_ID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(getUpdated())))
+                .content(JsonUtil.writeValue(updatedMeal)))
                 .andExpect(status().isNoContent());
+
+        MEAL_MATCHER.assertMatch(mealService.get(MEAL1_ID, SecurityUtil.authUserId()), updatedMeal);
     }
 
     @Test
@@ -58,17 +77,21 @@ public class MealRestControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.delete(REST_URL + "/" + MEAL1_ID))
                 .andDo(print())
                 .andExpect(status().isNoContent());
+
+        MEAL_MATCHER.assertMatch(mealService.getAll(SecurityUtil.authUserId()),
+                List.of(meal7, meal6, meal5, meal4, meal3, meal2));
     }
 
     @Test
     void getBetween() throws Exception {
+        List<MealTo> tos = MealTestData.getMealTos();
+        List<MealTo> expectedTos = List.of(tos.get(6), tos.get(5), tos.get(2), tos.get(1));
         perform(MockMvcRequestBuilders.get(REST_URL + "/filter")
-                .param("startDate", "2020-01-30T00:00:00")
-                .param("endDate", "2020-01-30T18:00:00"))
+                .param("startDate", "2020-01-30T13:00:00")
+                .param("endDate", "2020-01-31T21:00:00"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(MEAL_TO_MATCHER.contentJson(MealsUtil.getTos(List.of(meal2, meal1),
-                        SecurityUtil.authUserCaloriesPerDay())));
+                .andExpect(MEAL_TO_MATCHER.contentJson(expectedTos));
     }
 }
