@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import ru.javawebinar.topjava.MealTestData;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.to.MealTo;
-import ru.javawebinar.topjava.util.MealsUtil;
 
 import java.util.List;
 
@@ -35,7 +34,7 @@ class RootControllerTest extends AbstractControllerTest {
 
     @Test
     void getMeals() throws Exception {
-        List<MealTo> expected = MealsUtil.getTos(MealTestData.meals, user.getCaloriesPerDay());
+        List<MealTo> expected = MealTestData.getMealTos().reversed();
         perform(get("/meals"))
                 .andDo(print())
                 .andExpect(status().isOk())
